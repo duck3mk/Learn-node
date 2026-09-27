@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>note app create</title>
+    <link rel="stylesheet" href="/style.css">
+    
+  <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
+  <script>
+    eruda.init();
+  </script>
+
+  </head>
+  <body>
+    
+    <nav class="nav">
+  <ul>
+    <% if(user) { %>
+      <a href="/notes/create">create note</a>
+      <a href="/">Home</a>
+      <li> Welcome, <%= user.email %></li>
+      <a href="/logout" class="btn-logout">Logout</a>
+    <% } else { %>
+      <a href="/login" class="btn-login">Login</a>
+      <a href="/signup" class="btn-signup">Signup</a>
+      <% } %>
+      
+  </ul>
+</nav >
