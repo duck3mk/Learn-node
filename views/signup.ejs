@@ -1,0 +1,57 @@
+<%- include('./partials/head.ejs')%>
+
+<div class="auth-wrap">
+  <form class="auth-form">
+    <h2>Sign Up</h2>
+
+    <label>Email</label>
+    <input class="text" type="text" name="email" placeholder="Enter your email" required>
+    <div class="email error"></div >
+    <label>Password</label>
+    <input class="text" type="password" name="password" placeholder="Create a password" required>
+    <div class="password error"></div >
+
+    <button type="submit">Sign Up</button>
+
+    <p class="auth-switch">Already have an account? <a href="/login">Login</a></p>
+  </form>
+</div>
+
+<script>
+  const form = document.querySelector("form")
+  const emailErorr = document.querySelector(".email.error")
+  const passwordErorr = document.querySelector(".password.error")
+
+  form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+    const email = form.email.value;
+    const password = form.password.value;
+
+      emailErorr.textContent = '';
+      passwordErorr.textContent = '';
+    
+  try {
+    const res = await fetch("/signup", {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email,
+        password
+        })
+      })
+    const data = await res.json()
+    if(data.errors) {
+      emailErorr.textContent = data.errors.email
+      passwordErorr.textContent = data.errors.password
+    }
+    if(data.user) {
+      location.assign('/')
+    }
+    console.log(data)
+    } catch (err) {
+      console.log(err)
+    }
+  })
+</script>
+
+<%- include('./partials/bottom.ejs') %>

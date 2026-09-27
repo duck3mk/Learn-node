@@ -1,0 +1,118 @@
+<%- include('./partials/head.ejs')%>
+
+  <div class="page-wrap">
+    <div class="top-con">
+      <h1>Your Notes</h1>
+  </div>
+
+    <div>
+      <% if (notes && notes.length > 0) { %>
+      <div class="notes-grid">
+        <% notes.forEach(note => { %>
+          <div class="card note-card">
+            <h2><%= note.title %></h2>
+            <p><%= note.desc %></p>
+            <button class="delete-btn" data-doc="<%= note._id %>">Delete</button >
+            
+            <button class="edit-btn" data-doc="<%= note._id %>"
+            data-title="<%=note.title %>"
+            data-desc=" <%=note.desc %>"
+          >edit</button>
+          </div>
+        <% }) %>
+      </div>
+    <% } else { %>
+      <div class="empty-state">
+        <p>ماكو ملاحظات بعد</p>
+      </div>
+      <% } %>
+    </div>
+
+    <dialog id="dialog">
+          <form id="form">
+            <h3>Edit Note</h3>
+        
+            <label for="editName">New Name:</label>
+            <input id="editName" name="editName" type="text" placeholder="Enter new title">
+            <div class="tit-err"></div >
+        
+            <label for="editDesc">New Description:</label>
+            <input id="editDesc" name="editDesc" type="text" placeholder="Enter new description">
+            <div class="desc-err"></div >
+        
+            <div class="dialog-actions">
+              <button type="button" commandFor="dialog" command="close" class="btn-close">Close</button>
+              <button type="submit">Save</button>
+            </div>
+        </form >
+    </dialog>
+    
+    <script>
+      const deleteB = document.querySelectorAll(".delete-btn")
+
+        deleteB.forEach(button => {
+          button.addEventListener("click", (e) => {
+            const id = e.target.dataset.doc;
+            const res = fetch(`/notes/${id}`, {
+              method: 'DELETE',
+              headers: {"Content-Type": 'application/json'},
+            }).then(res => {
+              location.reload();
+            }).catch(err => {
+              console.log(err)
+            })
+          })
+        })
+
+
+      const editButtons = document.querySelectorAll(".edit-btn")
+      const dialog = document.querySelector("dialog")
+      const editName = document.querySelector('#editName')
+      const editDesc = document.querySelector('#editDesc')
+      const form = document.getElementById('form')
+      const titErr = document.querySelector('.tit-err')
+      const descErr = document.querySelector('.desc-err')
+
+      editButtons.forEach(button => {
+        button.addEventListener("click", (event) => {
+          const id = event.target.dataset.doc;
+          const title = event.target.dataset.title;
+          const desc = event.target.dataset.desc;
+          editName.value = title;
+          editDesc.value = desc;
+          const d = dialog.dataset.currentId = id;
+          console.log(id, title, desc,)
+          dialog.showModal();
+
+        })
+      })
+      form.addEventListener("submit", async (e) => {
+        descErr.textContent = '';
+        titErr.textContent = '';
+      e.preventDefault();
+        const newName = editName.value;
+        const newDesc = editDesc.value;
+        const id = dialog.dataset.currentId;
+        console.log(id)
+        const res = await fetch(`/notes/${id}`, {
+          method: 'PUT',
+          headers: {"Content-Type": 'application/json' },
+          body: JSON.stringify({
+            title: newName,
+            desc: newDesc,
+          })
+        })
+        const data = await res.json();
+        console.log(data)
+        if(data.errors) {
+          descErr.textContent = data.errors.desc;
+          titErr.textContent = data.errors.title;
+          //dialog.close();
+        }
+        if (data.msg) {
+          dialog.close();
+          location.reload();
+        }
+      })
+    </script>
+  <%- include('./partials/bottom.ejs') %>

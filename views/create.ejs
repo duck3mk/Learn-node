@@ -1,0 +1,57 @@
+
+<%- include('./partials/head.ejs')%>
+
+  <div class="page-wrap">
+    <div class="top-con">
+      <h1>Create Note</h1>
+    </div>
+
+    <div class="form-card">
+      <form>
+        <h4>Title of note</h4>
+        <input class="text" type="text" name="title">
+        <div class="titerr"></div >
+        <h4>Description of note</h4>
+        <textarea class="text" name="desc"></textarea>
+        <div class="desc-err"></div >
+        <button>Submit</button>
+      </form>
+    </div>
+  </div>
+
+<script>
+
+  const form = document.querySelector("form")
+  console.log(form)
+  const titErr = document.querySelector(".titerr")
+  const descErr = document.querySelector(".desc-err")
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const desc = form.desc.value;
+    const title = form.title.value;
+
+    titErr.textContent = '';
+    descErr.textContent = '';
+    try {
+        const res = await fetch('/notes/create', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({title, desc})
+      })
+      const data = await res.json();
+      console.log(data)
+      if (data.errors) {
+        console.log(data.errors)
+        titErr.textContent = data.errors.title;
+        descErr.textContent = data.errors.desc;
+      }
+      if(data.note) {
+        console.log(data.note)
+        location.assign('/')
+      }
+    } catch (err) {
+      console.log(err)
+    }
+  })
+</script>
+  <%- include('./partials/bottom.ejs') %>
